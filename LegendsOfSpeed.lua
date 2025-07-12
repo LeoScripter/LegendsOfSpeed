@@ -2,18 +2,16 @@
 Legends of Speed - Auto Orb & Gems Script with Beautiful Floating Icon GUI
 Author: LeoScripter
 Features:
-- Auto collect Orbs & Gems (teleport above and collect)
+- Auto collect Orbs & Gems (teleporta acima dos objetos)
 - Floating, animated GUI with stylish icon
 - Toggle buttons for features
 --]]
 
 local player = game.Players.LocalPlayer
-local runService = game:GetService("RunService")
 local workspace = game:GetService("Workspace")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-
--- Floating GUI Variables
 local TweenService = game:GetService("TweenService")
+
+-- GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LegendsAutoFarmGUI"
 ScreenGui.Parent = game.CoreGui
@@ -28,17 +26,16 @@ mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Parent = ScreenGui
 
--- Floating Icon
 local icon = Instance.new("ImageLabel")
 icon.Size = UDim2.new(0, 64, 0, 64)
 icon.Position = UDim2.new(0.5, -32, 0, -40)
 icon.BackgroundTransparency = 1
-icon.Image = "rbxassetid://15149456888" -- Replace with your beautiful icon asset ID!
+icon.Image = "rbxassetid://15149456888" -- Ícone flutuante bonito!
 icon.Parent = mainFrame
 
 -- Floating Animation
 spawn(function()
-    while true do
+    while mainFrame.Parent do
         local t = tick()
         icon.Position = UDim2.new(0.5, -32, 0, -40 + math.sin(t * 2) * 10)
         icon.Rotation = math.sin(t * 1.7) * 5
@@ -46,7 +43,6 @@ spawn(function()
     end
 end)
 
--- Title
 local title = Instance.new("TextLabel")
 title.Text = "Legends of Speed\nAutoFarm"
 title.TextColor3 = Color3.fromRGB(240, 240, 255)
@@ -56,7 +52,6 @@ title.BackgroundTransparency = 1
 title.Size = UDim2.new(1, 0, 0, 46)
 title.Parent = mainFrame
 
--- Toggle Buttons
 local autoOrbToggle = Instance.new("TextButton")
 autoOrbToggle.Size = UDim2.new(0.9, 0, 0, 38)
 autoOrbToggle.Position = UDim2.new(0.05, 0, 0, 56)
@@ -87,70 +82,6 @@ infoLabel.Position = UDim2.new(0,0,1,-28)
 infoLabel.Size = UDim2.new(1,0,0,24)
 infoLabel.Parent = mainFrame
 
--- Function to teleport player above a part and collect
-local function tpAboveAndCollect(part)
-    if part and part.Position then
-        local targetCFrame = part.CFrame + Vector3.new(0, 4.5, 0) -- 4.5 studs above
-        player.Character.HumanoidRootPart.CFrame = targetCFrame
-        wait(0.15)
-    end
-end
-
--- Auto Orbs Logic
-local autoOrb = false
-autoOrbToggle.MouseButton1Click:Connect(function()
-    autoOrb = not autoOrb
-    autoOrbToggle.Text = autoOrb and "Auto Orbs [ON]" or "Auto Orbs [OFF]"
-    autoOrbToggle.BackgroundColor3 = autoOrb and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
-end)
-
--- Auto Gems Logic
-local autoGems = false
-autoGemsToggle.MouseButton1Click:Connect(function()
-    autoGems = not autoGems
-    autoGemsToggle.Text = autoGems and "Auto Gems [ON]" or "Auto Gems [OFF]"
-    autoGemsToggle.BackgroundColor3 = autoGems and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
-end)
-
--- Main Farming Loop
-spawn(function()
-    while true do
-        if autoOrb and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            for _, orbFolder in ipairs(workspace:GetChildren()) do
-                if orbFolder.Name:match("Orbs") then
-                    for _, orb in ipairs(orbFolder:GetChildren()) do
-                        if orb:IsA("Part") then
-                            tpAboveAndCollect(orb)
-                        end
-                    end
-                end
-            end
-        end
-        wait(1)
-    end
-end)
-
-spawn(function()
-    while true do
-        if autoGems and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            for _, gemFolder in ipairs(workspace:GetChildren()) do
-                if gemFolder.Name:match("Gems") then
-                    for _, gem in ipairs(gemFolder:GetChildren()) do
-                        if gem:IsA("Part") then
-                            tpAboveAndCollect(gem)
-                        end
-                    end
-                end
-            end
-        end
-        wait(1)
-    end
-end)
-
--- Credits & GUI Notice
-print("Legends of Speed AutoFarm loaded! GUI is draggable. Created by LeoScripter.")
-
--- Optional: Add a close button
 local closeBtn = Instance.new("TextButton")
 closeBtn.Text = "✕"
 closeBtn.Font = Enum.Font.GothamBold
@@ -164,3 +95,64 @@ closeBtn.Parent = mainFrame
 closeBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
+
+-- Função para teleportar acima da orb/gem
+local function tpAbove(part)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and part and part.Position then
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
+        wait(0.12)
+    end
+end
+
+-- Toggles
+local autoOrb = false
+autoOrbToggle.MouseButton1Click:Connect(function()
+    autoOrb = not autoOrb
+    autoOrbToggle.Text = autoOrb and "Auto Orbs [ON]" or "Auto Orbs [OFF]"
+    autoOrbToggle.BackgroundColor3 = autoOrb and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
+end)
+
+local autoGems = false
+autoGemsToggle.MouseButton1Click:Connect(function()
+    autoGems = not autoGems
+    autoGemsToggle.Text = autoGems and "Auto Gems [ON]" or "Auto Gems [OFF]"
+    autoGemsToggle.BackgroundColor3 = autoGems and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
+end)
+
+-- Loop para auto orb
+spawn(function()
+    while true do
+        if autoOrb and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            for _, orbFolder in ipairs(workspace:GetChildren()) do
+                if orbFolder.Name:match("Orbs") then
+                    for _, orb in ipairs(orbFolder:GetChildren()) do
+                        if orb:IsA("Part") and orb.Parent == orbFolder then
+                            tpAbove(orb)
+                        end
+                    end
+                end
+            end
+        end
+        wait(1)
+    end
+end)
+
+-- Loop para auto gems
+spawn(function()
+    while true do
+        if autoGems and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            for _, gemFolder in ipairs(workspace:GetChildren()) do
+                if gemFolder.Name:match("Gems") then
+                    for _, gem in ipairs(gemFolder:GetChildren()) do
+                        if gem:IsA("Part") and gem.Parent == gemFolder then
+                            tpAbove(gem)
+                        end
+                    end
+                end
+            end
+        end
+        wait(1)
+    end
+end)
+
+print("Legends of Speed AutoFarm loaded! GUI is draggable. Created by LeoScripter.")
