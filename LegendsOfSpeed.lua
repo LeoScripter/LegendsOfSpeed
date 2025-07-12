@@ -2,7 +2,7 @@
 Legends of Speed - Auto Orb & Gems Script with Beautiful Floating Icon GUI
 Author: LeoScripter
 Features:
-- Auto collect Orbs & Gems
+- Auto collect Orbs & Gems (teleport above and collect)
 - Floating, animated GUI with stylish icon
 - Toggle buttons for features
 --]]
@@ -87,10 +87,12 @@ infoLabel.Position = UDim2.new(0,0,1,-28)
 infoLabel.Size = UDim2.new(1,0,0,24)
 infoLabel.Parent = mainFrame
 
--- Function to teleport player to part
-local function tpTo(part)
+-- Function to teleport player above a part and collect
+local function tpAboveAndCollect(part)
     if part and part.Position then
-        player.Character.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0,2,0)
+        local targetCFrame = part.CFrame + Vector3.new(0, 4.5, 0) -- 4.5 studs above
+        player.Character.HumanoidRootPart.CFrame = targetCFrame
+        wait(0.15)
     end
 end
 
@@ -118,8 +120,7 @@ spawn(function()
                 if orbFolder.Name:match("Orbs") then
                     for _, orb in ipairs(orbFolder:GetChildren()) do
                         if orb:IsA("Part") then
-                            tpTo(orb)
-                            wait(0.2)
+                            tpAboveAndCollect(orb)
                         end
                     end
                 end
@@ -136,8 +137,7 @@ spawn(function()
                 if gemFolder.Name:match("Gems") then
                     for _, gem in ipairs(gemFolder:GetChildren()) do
                         if gem:IsA("Part") then
-                            tpTo(gem)
-                            wait(0.2)
+                            tpAboveAndCollect(gem)
                         end
                     end
                 end
