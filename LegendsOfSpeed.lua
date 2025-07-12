@@ -1,10 +1,10 @@
 --[[
-Legends of Speed - Auto Orb & Gems Script with Beautiful Floating Icon GUI
-Author: LeoScripter
-Features:
+Legends of Speed - Auto Orb & Gems Script com GUI e ícone flutuante bonito
+Feito por LeoScripter
+Funcionalidades:
 - Auto collect Orbs & Gems (teleporta acima dos objetos)
-- Floating, animated GUI with stylish icon
-- Toggle buttons for features
+- GUI flutuante com ícone animado
+- Botões de toggle para cada função
 --]]
 
 local player = game.Players.LocalPlayer
@@ -30,7 +30,7 @@ local icon = Instance.new("ImageLabel")
 icon.Size = UDim2.new(0, 64, 0, 64)
 icon.Position = UDim2.new(0.5, -32, 0, -40)
 icon.BackgroundTransparency = 1
-icon.Image = "rbxassetid://15149456888" -- Ícone flutuante bonito!
+icon.Image = "rbxassetid://15149456888" -- Ícone bonito (troque pelo que quiser)!
 icon.Parent = mainFrame
 
 -- Floating Animation
@@ -99,8 +99,9 @@ end)
 -- Função para teleportar acima da orb/gem
 local function tpAbove(part)
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and part and part.Position then
+        print("Teleportando acima de:", part.Name)
         player.Character.HumanoidRootPart.CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
-        wait(0.12)
+        wait(0.15)
     end
 end
 
@@ -124,9 +125,9 @@ spawn(function()
     while true do
         if autoOrb and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             for _, orbFolder in ipairs(workspace:GetChildren()) do
-                if orbFolder.Name:match("Orbs") then
+                if string.find(orbFolder.Name, "Orb") then -- Aceita Orbs/Orb
                     for _, orb in ipairs(orbFolder:GetChildren()) do
-                        if orb:IsA("Part") and orb.Parent == orbFolder then
+                        if orb:IsA("Part") and orb.Parent == orbFolder and orb.Position then
                             tpAbove(orb)
                         end
                     end
@@ -142,9 +143,9 @@ spawn(function()
     while true do
         if autoGems and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             for _, gemFolder in ipairs(workspace:GetChildren()) do
-                if gemFolder.Name:match("Gems") then
+                if string.find(gemFolder.Name, "Gem") then -- Aceita Gems/Gem
                     for _, gem in ipairs(gemFolder:GetChildren()) do
-                        if gem:IsA("Part") and gem.Parent == gemFolder then
+                        if gem:IsA("Part") and gem.Parent == gemFolder and gem.Position then
                             tpAbove(gem)
                         end
                     end
