@@ -5,6 +5,7 @@ Funcionalidades:
 - Auto collect Orbs & Gems (teleporta acima dos objetos)
 - GUI flutuante com ícone animado
 - Botões de toggle para cada função
+- Debug print para diagnóstico
 --]]
 
 local player = game.Players.LocalPlayer
@@ -99,9 +100,11 @@ end)
 -- Função para teleportar acima da orb/gem
 local function tpAbove(part)
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and part and part.Position then
-        print("Teleportando acima de:", part.Name)
+        print("DEBUG: Teleportando acima de", part.Name, "Posição:", tostring(part.Position))
         player.Character.HumanoidRootPart.CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
         wait(0.15)
+    else
+        print("DEBUG: Falha ao teleportar. HumanoidRootPart ou part inválido.")
     end
 end
 
@@ -111,6 +114,7 @@ autoOrbToggle.MouseButton1Click:Connect(function()
     autoOrb = not autoOrb
     autoOrbToggle.Text = autoOrb and "Auto Orbs [ON]" or "Auto Orbs [OFF]"
     autoOrbToggle.BackgroundColor3 = autoOrb and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
+    print("DEBUG: Auto Orbs agora", autoOrb and "ATIVADO" or "DESATIVADO")
 end)
 
 local autoGems = false
@@ -118,6 +122,7 @@ autoGemsToggle.MouseButton1Click:Connect(function()
     autoGems = not autoGems
     autoGemsToggle.Text = autoGems and "Auto Gems [ON]" or "Auto Gems [OFF]"
     autoGemsToggle.BackgroundColor3 = autoGems and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
+    print("DEBUG: Auto Gems agora", autoGems and "ATIVADO" or "DESATIVADO")
 end)
 
 -- Loop para auto orb
