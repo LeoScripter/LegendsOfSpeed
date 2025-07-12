@@ -1,205 +1,166 @@
---[[ 
-  Script Roblox Legends of Speed Mobile - by @LeoScripter
-  GUI com design bonito e ícone customizado!
-  Funções: auto orbs, auto gems, auto rebirth, auto race, auto hoops, teleport, anti-AFK.
+--[[
+Legends of Speed - Auto Orb & Gems Script with Beautiful Floating Icon GUI
+Author: LeoScripter
+Features:
+- Auto collect Orbs & Gems
+- Floating, animated GUI with stylish icon
+- Toggle buttons for features
 --]]
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualUser = game:GetService("VirtualUser")
+local player = game.Players.LocalPlayer
+local runService = game:GetService("RunService")
+local workspace = game:GetService("Workspace")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Floating GUI Variables
 local TweenService = game:GetService("TweenService")
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LegendsAutoFarmGUI"
+ScreenGui.Parent = game.CoreGui
 
--- CONFIGURAÇÕES
-local AUTO_ORBS = true
-local AUTO_GEMS = true
-local AUTO_REBIRTH = false
-local AUTO_RACE = false
-local AUTO_HOOPS = true
-local TELEPORTS = true
-local ANTI_AFK = true
+local mainFrame = Instance.new("Frame")
+mainFrame.Position = UDim2.new(0.8,0,0.2,0)
+mainFrame.Size = UDim2.new(0, 180, 0, 215)
+mainFrame.BackgroundTransparency = 0.35
+mainFrame.BackgroundColor3 = Color3.fromRGB(43, 62, 120)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = ScreenGui
 
--- Locais de Teleporte
-local locations = {
-    ["Spawn"] = Vector3.new(-43, 24, 206),
-    ["Desert"] = Vector3.new(1032, 24, 2338),
-    ["Snow"] = Vector3.new(1318, 25, -2558),
-    ["Magma"] = Vector3.new(-1331, 24, -2778),
-    ["Electro"] = Vector3.new(-1520, 24, 2067),
-}
+-- Floating Icon
+local icon = Instance.new("ImageLabel")
+icon.Size = UDim2.new(0, 64, 0, 64)
+icon.Position = UDim2.new(0.5, -32, 0, -40)
+icon.BackgroundTransparency = 1
+icon.Image = "rbxassetid://15149456888" -- Replace with your beautiful icon asset ID!
+icon.Parent = mainFrame
 
--- Função Anti-AFK
-if ANTI_AFK then
-    LocalPlayer.Idled:Connect(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end)
-end
+-- Floating Animation
+spawn(function()
+    while true do
+        local t = tick()
+        icon.Position = UDim2.new(0.5, -32, 0, -40 + math.sin(t * 2) * 10)
+        icon.Rotation = math.sin(t * 1.7) * 5
+        wait(0.03)
+    end
+end)
 
--- Teleporte rápido
-local function TeleportTo(pos)
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
+-- Title
+local title = Instance.new("TextLabel")
+title.Text = "Legends of Speed\nAutoFarm"
+title.TextColor3 = Color3.fromRGB(240, 240, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.BackgroundTransparency = 1
+title.Size = UDim2.new(1, 0, 0, 46)
+title.Parent = mainFrame
+
+-- Toggle Buttons
+local autoOrbToggle = Instance.new("TextButton")
+autoOrbToggle.Size = UDim2.new(0.9, 0, 0, 38)
+autoOrbToggle.Position = UDim2.new(0.05, 0, 0, 56)
+autoOrbToggle.Text = "Auto Orbs [OFF]"
+autoOrbToggle.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+autoOrbToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoOrbToggle.Font = Enum.Font.GothamBlack
+autoOrbToggle.TextSize = 16
+autoOrbToggle.Parent = mainFrame
+
+local autoGemsToggle = Instance.new("TextButton")
+autoGemsToggle.Size = UDim2.new(0.9, 0, 0, 38)
+autoGemsToggle.Position = UDim2.new(0.05, 0, 0, 104)
+autoGemsToggle.Text = "Auto Gems [OFF]"
+autoGemsToggle.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+autoGemsToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoGemsToggle.Font = Enum.Font.GothamBlack
+autoGemsToggle.TextSize = 16
+autoGemsToggle.Parent = mainFrame
+
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Text = "By LeoScripter"
+infoLabel.Font = Enum.Font.GothamSemibold
+infoLabel.TextSize = 14
+infoLabel.BackgroundTransparency = 1
+infoLabel.TextColor3 = Color3.fromRGB(170,200,255)
+infoLabel.Position = UDim2.new(0,0,1,-28)
+infoLabel.Size = UDim2.new(1,0,0,24)
+infoLabel.Parent = mainFrame
+
+-- Function to teleport player to part
+local function tpTo(part)
+    if part and part.Position then
+        player.Character.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0,2,0)
     end
 end
 
--- Auto Orbs
-local function AutoOrbs()
-    while AUTO_ORBS do
-        for _, orb in pairs(Workspace:GetChildren()) do
-            if orb.Name:find("Orb") and orb:IsA("Model") and orb:FindFirstChild("TouchInterest") then
-                TeleportTo(orb.Position or orb.PrimaryPart.Position)
-                wait(0.2)
+-- Auto Orbs Logic
+local autoOrb = false
+autoOrbToggle.MouseButton1Click:Connect(function()
+    autoOrb = not autoOrb
+    autoOrbToggle.Text = autoOrb and "Auto Orbs [ON]" or "Auto Orbs [OFF]"
+    autoOrbToggle.BackgroundColor3 = autoOrb and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
+end)
+
+-- Auto Gems Logic
+local autoGems = false
+autoGemsToggle.MouseButton1Click:Connect(function()
+    autoGems = not autoGems
+    autoGemsToggle.Text = autoGems and "Auto Gems [ON]" or "Auto Gems [OFF]"
+    autoGemsToggle.BackgroundColor3 = autoGems and Color3.fromRGB(120,200,90) or Color3.fromRGB(70,130,180)
+end)
+
+-- Main Farming Loop
+spawn(function()
+    while true do
+        if autoOrb and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            for _, orbFolder in ipairs(workspace:GetChildren()) do
+                if orbFolder.Name:match("Orbs") then
+                    for _, orb in ipairs(orbFolder:GetChildren()) do
+                        if orb:IsA("Part") then
+                            tpTo(orb)
+                            wait(0.2)
+                        end
+                    end
+                end
             end
         end
         wait(1)
     end
-end
+end)
 
--- Auto Gems
-local function AutoGems()
-    while AUTO_GEMS do
-        for _, gem in pairs(Workspace:GetChildren()) do
-            if gem.Name:find("Gem") and gem:IsA("Model") and gem:FindFirstChild("TouchInterest") then
-                TeleportTo(gem.Position or gem.PrimaryPart.Position)
-                wait(0.2)
+spawn(function()
+    while true do
+        if autoGems and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            for _, gemFolder in ipairs(workspace:GetChildren()) do
+                if gemFolder.Name:match("Gems") then
+                    for _, gem in ipairs(gemFolder:GetChildren()) do
+                        if gem:IsA("Part") then
+                            tpTo(gem)
+                            wait(0.2)
+                        end
+                    end
+                end
             end
         end
         wait(1)
     end
-end
+end)
 
--- Auto Hoops (anéis)
-local function AutoHoops()
-    while AUTO_HOOPS do
-        for _, hoop in pairs(Workspace:FindFirstChild("Hoops") and Workspace.Hoops:GetChildren() or {}) do
-            if hoop:IsA("Part") then
-                TeleportTo(hoop.Position)
-                wait(0.25)
-            end
-        end
-        wait(2)
-    end
-end
+-- Credits & GUI Notice
+print("Legends of Speed AutoFarm loaded! GUI is draggable. Created by LeoScripter.")
 
--- Auto Rebirth
-local function AutoRebirth()
-    while AUTO_REBIRTH do
-        ReplicatedStorage.rEvents.rebirthEvent:FireServer("rebirthRequest")
-        wait(5)
-    end
-end
-
--- Auto Race
-local function AutoRace()
-    while AUTO_RACE do
-        ReplicatedStorage.rEvents.joinRace:FireServer()
-        wait(10)
-    end
-end
-
--- GUI BONITA COM ÍCONE
-local function createBeautifulGUI()
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "LegendsSpeedGUI"
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Parent = ScreenGui
-    MainFrame.Size = UDim2.new(0, 250, 0, 350)
-    MainFrame.Position = UDim2.new(0, 40, 0, 90)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 40, 90)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.BackgroundTransparency = 0.12
-    MainFrame.AnchorPoint = Vector2.new(0,0)
-    MainFrame.Active = true
-    MainFrame.Draggable = true
-    MainFrame.ZIndex = 2
-
-    local Corner = Instance.new("UICorner", MainFrame)
-    Corner.CornerRadius = UDim.new(0, 18)
-
-    local Shadow = Instance.new("ImageLabel", MainFrame)
-    Shadow.Image = "rbxassetid://6015897843"
-    Shadow.Size = UDim2.new(1.2, 0, 1.2, 0)
-    Shadow.Position = UDim2.new(-0.1, 0, -0.1, 0)
-    Shadow.BackgroundTransparency = 1
-    Shadow.ZIndex = 1
-
-    -- Ícone bonito
-    local Icon = Instance.new("ImageLabel", MainFrame)
-    Icon.Image = "rbxassetid://12952481521" -- Ícone de raio estiloso
-    Icon.Size = UDim2.new(0, 60, 0, 60)
-    Icon.Position = UDim2.new(0.5, -30, 0, -40)
-    Icon.BackgroundTransparency = 1
-    Icon.ZIndex = 2
-
-    -- Título estilizado
-    local Title = Instance.new("TextLabel", MainFrame)
-    Title.Text = "Legends of Speed\nMobile Script"
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 20
-    Title.TextColor3 = Color3.fromRGB(255,255,255)
-    Title.BackgroundTransparency = 1
-    Title.Size = UDim2.new(1,0,0,60)
-    Title.Position = UDim2.new(0,0,0,20)
-    Title.ZIndex = 2
-
-    -- Botões de teleporte
-    local ButtonList = Instance.new("Frame", MainFrame)
-    ButtonList.Size = UDim2.new(1,-30,0,170)
-    ButtonList.Position = UDim2.new(0,15,0,90)
-    ButtonList.BackgroundTransparency = 1
-    ButtonList.ZIndex = 2
-
-    local Layout = Instance.new("UIListLayout", ButtonList)
-    Layout.Padding = UDim.new(0,8)
-    Layout.FillDirection = Enum.FillDirection.Vertical
-    Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-    for loc, pos in pairs(locations) do
-        local btn = Instance.new("TextButton", ButtonList)
-        btn.Size = UDim2.new(1,0,0,32)
-        btn.Text = "🌟 " .. loc
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 16
-        btn.BackgroundColor3 = Color3.fromRGB(60,110,220)
-        btn.TextColor3 = Color3.fromRGB(255,255,255)
-        btn.BorderSizePixel = 0
-        btn.ZIndex = 2
-        local btnCorner = Instance.new("UICorner", btn)
-        btnCorner.CornerRadius = UDim.new(0,14)
-        btn.MouseButton1Click:Connect(function()
-            TeleportTo(pos)
-        end)
-    end
-
-    -- Créditos
-    local credit = Instance.new("TextLabel", MainFrame)
-    credit.Text = "By @LeoScripter"
-    credit.Font = Enum.Font.Gotham
-    credit.TextSize = 14
-    credit.TextColor3 = Color3.fromRGB(190,190,250)
-    credit.BackgroundTransparency = 1
-    credit.Size = UDim2.new(1,0,0,18)
-    credit.Position = UDim2.new(0,0,1,-22)
-    credit.ZIndex = 2
-
-    -- Ativar/desativar funções (opcional)
-    -- Você pode adicionar botões para ativar/desativar funções aqui se quiser.
-end
-
--- Inicialização das corrotinas
-if AUTO_ORBS then coroutine.wrap(AutoOrbs)() end
-if AUTO_GEMS then coroutine.wrap(AutoGems)() end
-if AUTO_REBIRTH then coroutine.wrap(AutoRebirth)() end
-if AUTO_RACE then coroutine.wrap(AutoRace)() end
-if AUTO_HOOPS then coroutine.wrap(AutoHoops)() end
-
--- Cria a GUI Linda
-createBeautifulGUI()
-
-print("Script Legends of Speed Mobile com GUI ativada! Use com responsabilidade.")
-
--- Personalize as opções no início do script!
+-- Optional: Add a close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Text = "✕"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+closeBtn.Size = UDim2.new(0,32,0,32)
+closeBtn.Position = UDim2.new(1,-36,0,4)
+closeBtn.BackgroundTransparency = 0.7
+closeBtn.BackgroundColor3 = Color3.fromRGB(220,70,70)
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.Parent = mainFrame
+closeBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
